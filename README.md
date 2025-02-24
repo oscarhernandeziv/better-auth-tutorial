@@ -1,5 +1,5 @@
-This is a demo todo list application showcasing authentication and authorization with
-[Better Auth](https://better-auth.com), [Prisma](https://prisma.io), [Neon](https://neon.tech), and [Next.js](https://nextjs.org).
+This is a demo todo list application showcasing authentication with
+[Better Auth](https://better-auth.com), integrated with [Next.js](https://nextjs.org), [Neon](https://neon.tech), and [Prisma](https://prisma.io).
 
 ## Getting Started
 
