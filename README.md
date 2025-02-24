@@ -19,5 +19,6 @@ This is a demo todo list application showcasing authentication with [Better Auth
 - [x] Next.js Middleware
 - [x] Neon Database with Prisma Integration
 - [x] Email Verification
+- [x] Forgot/Reset Password
 - [ ] Magic Link Login
 - [ ] Email OTP Login

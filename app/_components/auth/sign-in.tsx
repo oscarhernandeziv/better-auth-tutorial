@@ -3,6 +3,7 @@ import { signIn } from "@/src/auth/auth-client";
 import SignInSchema from "@/src/helpers/zod/sign-in-schema";
 import { useAuthState } from "@/src/hooks/useAuthState";
 import { zodResolver } from "@hookform/resolvers/zod";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import type { z } from "zod";
@@ -179,6 +180,12 @@ const SignIn = () => {
 										/>
 									</FormControl>
 									<FormMessage />
+									<Link
+										href="/forgot-password"
+										className="text-sm underline hover:text-gray-500"
+									>
+										Forgot Password?
+									</Link>
 								</FormItem>
 							)}
 						/>
