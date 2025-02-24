@@ -3,7 +3,7 @@ import { signUp } from "@/src/auth/auth-client";
 import SignupSchema from "@/src/helpers/zod/sign-up-schema";
 import { useAuthState } from "@/src/hooks/useAuthState";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useRouter } from "next/navigation";
+// import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import type { z } from "zod";
 import FormError from "../forms/form-error";
@@ -21,7 +21,7 @@ import {
 import { Input } from "../ui/input";
 
 const SignUp = () => {
-	const router = useRouter();
+	// const router = useRouter();
 	const {
 		error,
 		success,
@@ -48,6 +48,7 @@ const SignUp = () => {
 					name: values.name,
 					email: values.email,
 					password: values.password,
+					callbackURL: "/",
 				},
 				{
 					onResponse: () => {
@@ -58,8 +59,9 @@ const SignUp = () => {
 						setLoading(true);
 					},
 					onSuccess: () => {
-						setSuccess("User has been created");
-						router.replace("/");
+						// setSuccess("User has been created");
+						// router.replace("/");
+						setSuccess("Verification link has been sent to your email");
 					},
 					onError: (ctx) => {
 						setError(ctx.error.message);
@@ -73,7 +75,13 @@ const SignUp = () => {
 	};
 
 	return (
-		<CardWrapper cardTitle="SignUp" cardDescription="Create an new account">
+		<CardWrapper
+			cardTitle="Sign Up"
+			cardDescription="Create an new account"
+			cardFooterDescription="Already have an account?"
+			cardFooterLink="/sign-in"
+			cardFooterLinkTitle="Sign in"
+		>
 			<Form {...form}>
 				<form className="space-y-4" onSubmit={form.handleSubmit(onSubmit)}>
 					<FormField

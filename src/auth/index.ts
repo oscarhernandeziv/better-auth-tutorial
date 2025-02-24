@@ -1,6 +1,7 @@
 import prisma from "@/src/db";
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
+import { resend } from "../helpers/emails/resend";
 
 export const auth = betterAuth({
 	appName: "better_auth_tutorial",
@@ -22,5 +23,18 @@ export const auth = betterAuth({
 		autoSignIn: true,
 		minPasswordLength: 8,
 		maxPasswordLength: 24,
+		requireEmailVerification: true,
+	},
+	emailVerification: {
+		sendOnSignUp: true,
+		autoSignInAfterVerification: true,
+		sendVerificationEmail: async ({ user, url }) => {
+			await resend.emails.send({
+				from: "Acme <onboarding@resend.dev>",
+				to: user.email,
+				subject: "Email Verification",
+				html: `Click the link to verify your email: ${url}`,
+			});
+		},
 	},
 });

@@ -1,5 +1,9 @@
-This is a demo todo list application showcasing authentication with
-[Better Auth](https://better-auth.com), integrated with [Next.js](https://nextjs.org), [Neon](https://neon.tech), and [Prisma](https://prisma.io).
+This is a demo todo list application showcasing authentication with [Better Auth](https://better-auth.com), integrated with:
+
+- [Next.js 15](https://nextjs.org)
+- [Neon](https://neon.tech)
+- [Prisma](https://prisma.io)
+- [Resend](https://resend.com)
 
 ## Getting Started
 
@@ -14,6 +18,6 @@ This is a demo todo list application showcasing authentication with
 - [x] Session Management
 - [x] Next.js Middleware
 - [x] Neon Database with Prisma Integration
-- [ ] Email Verification
+- [x] Email Verification
 - [ ] Magic Link Login
 - [ ] Email OTP Login

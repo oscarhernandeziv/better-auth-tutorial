@@ -60,6 +60,9 @@ const SignIn = () => {
 						router.replace("/");
 					},
 					onError: (ctx) => {
+						if (ctx.error.status === 403) {
+							setError("Please verify your email");
+						}
 						setError(ctx.error.message);
 					},
 				},
@@ -134,6 +137,9 @@ const SignIn = () => {
 		<CardWrapper
 			cardTitle="Sign In"
 			cardDescription="Enter your email/password or choose a social login."
+			cardFooterDescription="Don't have an account?"
+			cardFooterLink="/sign-up"
+			cardFooterLinkTitle="Sign up"
 		>
 			<div className="flex flex-col gap-y-2">
 				<FormError message={error} />
@@ -181,7 +187,7 @@ const SignIn = () => {
 						</Button>
 					</form>
 				</Form>
-				<div className="flex flex-col gap-y-2">
+				<div className="flex flex-col gap-y-2 pt-2">
 					<Button variant={"outline"} onClick={githubSignIn} disabled={loading}>
 						<svg
 							aria-label="Github Logo"

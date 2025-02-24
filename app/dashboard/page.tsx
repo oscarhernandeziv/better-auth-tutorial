@@ -13,7 +13,7 @@ export default async function DashboardPage() {
 				<div className="flex flex-col gap-2">
 					<h1 className="font-bold text-3xl">Todo List</h1>
 					<p className="text-muted-foreground">
-						Welcome back, {session?.user?.name}
+						Welcome back, {session?.user?.name}!
 					</p>
 				</div>
 				<TodoList />
