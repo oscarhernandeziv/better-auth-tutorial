@@ -31,19 +31,16 @@ export function MainNav() {
 							Home
 						</Link>
 						{session && (
-							<>
-								<Link
-									href="/dashboard"
-									className={`transition-colors hover:text-foreground/80 ${
-										pathname === "/dashboard"
-											? "text-foreground"
-											: "text-foreground/60"
-									}`}
-								>
-									Dashboard
-								</Link>
-								<Settings />
-							</>
+							<Link
+								href="/dashboard"
+								className={`transition-colors hover:text-foreground/80 ${
+									pathname === "/dashboard"
+										? "text-foreground"
+										: "text-foreground/60"
+								}`}
+							>
+								Dashboard
+							</Link>
 						)}
 					</nav>
 				</div>
@@ -54,6 +51,7 @@ export function MainNav() {
 								<span className="text-foreground/60 text-sm">
 									{session.user.name}
 								</span>
+								<Settings />
 								<SignOut />
 							</>
 						) : (

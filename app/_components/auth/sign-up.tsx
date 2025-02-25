@@ -19,8 +19,9 @@ import {
 	FormMessage,
 } from "../ui/form";
 import { Input } from "../ui/input";
+import AnonymousButton from "./anonymous-button";
 
-const SignUp = () => {
+export default function SignUp() {
 	// const router = useRouter();
 	const {
 		error,
@@ -143,10 +144,9 @@ const SignUp = () => {
 					<Button disabled={loading} type="submit" className="w-full">
 						Submit
 					</Button>
+					<AnonymousButton />
 				</form>
 			</Form>
 		</CardWrapper>
 	);
-};
-
-export default SignUp;
+}

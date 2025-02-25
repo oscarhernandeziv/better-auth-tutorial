@@ -2,7 +2,6 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
-import type React from "react";
 import { useForm } from "react-hook-form";
 import type { z } from "zod";
 
@@ -18,7 +17,7 @@ import CardWrapper from "../ui/card-wrapper";
 import { Form, FormField, FormItem, FormLabel, FormMessage } from "../ui/form";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "../ui/input-otp";
 
-const TwoFactor: React.FC = () => {
+export default function TwoFactor() {
 	const router = useRouter();
 	const {
 		error,
@@ -139,6 +138,4 @@ const TwoFactor: React.FC = () => {
 			</Form>
 		</CardWrapper>
 	);
-};
-
-export default TwoFactor;
+}

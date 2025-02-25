@@ -1,6 +1,7 @@
 import prisma from "@/src/db";
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
+import { anonymous } from "better-auth/plugins/anonymous";
 import { twoFactor } from "better-auth/plugins/two-factor";
 import { resend } from "../helpers/emails/resend";
 
@@ -61,6 +62,9 @@ export const auth = betterAuth({
 				},
 			},
 			skipVerificationOnEnable: true,
+		}),
+		anonymous({
+			emailDomainName: "example.com",
 		}),
 	],
 });

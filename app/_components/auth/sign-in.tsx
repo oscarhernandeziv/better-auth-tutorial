@@ -23,8 +23,8 @@ import {
 	FormMessage,
 } from "../ui/form";
 import { Input } from "../ui/input";
-
-const SignIn = () => {
+import AnonymousButton from "./anonymous-button";
+export default function SignIn() {
 	const router = useRouter();
 	const {
 		error,
@@ -199,6 +199,7 @@ const SignIn = () => {
 						<Button disabled={loading} type="submit" className="w-full">
 							Login
 						</Button>
+						<AnonymousButton />
 					</form>
 				</Form>
 				<div className="flex flex-col gap-y-2 pt-2">
@@ -250,6 +251,4 @@ const SignIn = () => {
 			</div>
 		</CardWrapper>
 	);
-};
-
-export default SignIn;
+}
