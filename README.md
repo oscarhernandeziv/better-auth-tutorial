@@ -21,6 +21,6 @@ This is a demo todo list application showcasing authentication with [Better Auth
 - [x] Email Verification
 - [x] Forgot/Reset Password
 - [x] Two-Factor Authentication
-- [ ] Anonymous Login
+- [x] Anonymous Login
 - [ ] Magic Link Login
 - [ ] Email OTP Login
