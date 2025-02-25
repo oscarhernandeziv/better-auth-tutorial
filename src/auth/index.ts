@@ -2,6 +2,7 @@ import prisma from "@/src/db";
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { anonymous } from "better-auth/plugins/anonymous";
+import { magicLink } from "better-auth/plugins/magic-link";
 import { twoFactor } from "better-auth/plugins/two-factor";
 import { resend } from "../helpers/emails/resend";
 
@@ -65,6 +66,17 @@ export const auth = betterAuth({
 		}),
 		anonymous({
 			emailDomainName: "example.com",
+		}),
+		magicLink({
+			disableSignUp: true, // Disable using magic link at signup
+			sendMagicLink: async ({ email, url }) => {
+				await resend.emails.send({
+					from: "Acme <onboarding@resend.dev>",
+					to: email,
+					subject: "Magic Link",
+					html: `Click the link to sign in into your account: ${url}`,
+				});
+			},
 		}),
 	],
 });

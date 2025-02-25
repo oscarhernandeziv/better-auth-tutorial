@@ -8,8 +8,8 @@ export default async function DashboardPage() {
 	});
 
 	return (
-		<div className="container mx-auto py-10">
-			<div className="flex flex-col gap-6">
+		<div className="flex h-screen w-full flex-col items-center justify-center px-4">
+			<div className="flex w-full max-w-2xl flex-col gap-6">
 				<div className="flex flex-col gap-2">
 					<h1 className="font-bold text-3xl">Todo List</h1>
 					<p className="text-muted-foreground">

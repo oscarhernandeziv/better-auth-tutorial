@@ -38,7 +38,7 @@ export default function AnonymousButton() {
 			onClick={handleAnonymousSignIn}
 		>
 			<User />
-			Guest
+			Sign in as Guest
 		</Button>
 	);
 }

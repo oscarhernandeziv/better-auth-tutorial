@@ -31,6 +31,7 @@ export default function TodoList() {
 	const [todos, setTodos] = useState<Todo[]>([]);
 	const [error, setError] = useState<string>("");
 	const [isLoading, setIsLoading] = useState(true);
+	const [charCount, setCharCount] = useState(0);
 
 	const form = useForm<z.infer<typeof TodoSchema>>({
 		defaultValues: {
@@ -60,6 +61,7 @@ export default function TodoList() {
 			const newTodo = await createTodo(data);
 			setTodos((prev) => [newTodo, ...prev]);
 			form.reset();
+			setCharCount(0);
 			setError("");
 		} catch (err) {
 			if (err instanceof Error) {
@@ -96,21 +98,48 @@ export default function TodoList() {
 	};
 
 	if (isLoading) {
-		return <div className="text-center">Loading...</div>;
+		return <div className="w-full text-center">Loading...</div>;
 	}
 
 	return (
-		<div className="mx-auto w-full max-w-2xl space-y-4">
+		<div className="w-full min-w-[300px] space-y-4">
 			<form
 				onSubmit={form.handleSubmit(onSubmit)}
-				className="flex items-center gap-2"
+				className="flex w-full flex-col gap-2"
 			>
-				<Input
-					placeholder="Add a new todo..."
-					{...form.register("title")}
-					className="flex-1"
-				/>
-				<Button type="submit">Add Todo</Button>
+				<div className="flex w-full items-center gap-2">
+					<div className="flex-1">
+						<Input
+							placeholder="Add a new todo..."
+							{...form.register("title", {
+								onChange: (e) => setCharCount(e.target.value.length),
+							})}
+							className="flex-1"
+							maxLength={100}
+						/>
+					</div>
+					<Button type="submit" className="whitespace-nowrap">
+						Add Todo
+					</Button>
+				</div>
+				<div className="flex items-center justify-between text-sm">
+					<div
+						className={`${
+							charCount > 90
+								? "text-amber-500"
+								: charCount === 100
+									? "text-red-500"
+									: "text-gray-500"
+						}`}
+					>
+						{charCount}/100 characters
+					</div>
+					{form.formState.errors.title && (
+						<p className="text-red-500">
+							{form.formState.errors.title.message}
+						</p>
+					)}
+				</div>
 			</form>
 
 			{error && <div className="text-center text-red-500 text-sm">{error}</div>}
@@ -120,20 +149,21 @@ export default function TodoList() {
 					No todos yet. Add one above!
 				</div>
 			) : (
-				<div className="space-y-2">
+				<div className="w-full space-y-3">
 					{todos.map((todo) => (
 						<div
 							key={todo.id}
-							className="flex items-center gap-2 rounded-lg border bg-card p-2"
+							className="flex min-h-fit w-full items-center gap-3 rounded-lg border bg-card p-2"
 						>
 							<Checkbox
 								checked={todo.completed}
 								onCheckedChange={(checked) =>
 									handleToggle(todo.id, checked as boolean)
 								}
+								className="mt-0.5"
 							/>
 							<span
-								className={`flex-1 ${
+								className={`flex-1 break-words ${
 									todo.completed ? "text-gray-500 line-through" : ""
 								}`}
 							>
@@ -143,6 +173,7 @@ export default function TodoList() {
 								variant="ghost"
 								size="icon"
 								onClick={() => handleDelete(todo.id)}
+								className="flex-shrink-0"
 							>
 								<Trash2 className="h-4 w-4" />
 							</Button>

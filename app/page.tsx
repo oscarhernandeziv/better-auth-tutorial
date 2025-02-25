@@ -2,7 +2,7 @@
 
 export default function Home() {
 	return (
-		<div className="flex min-h-screen flex-col items-center justify-center">
+		<div className="flex h-screen w-full flex-col items-center justify-center">
 			<h1 className="text-center font-bold text-4xl">
 				This is a Better Auth Tutorial App
 			</h1>

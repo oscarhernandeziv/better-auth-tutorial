@@ -13,7 +13,7 @@ export function MainNav() {
 	const pathname = usePathname();
 
 	return (
-		<nav className="border-b">
+		<nav className="fixed top-0 left-0 z-10 w-full border-b">
 			<div className="container mx-auto flex h-16 items-center px-4">
 				<div className="mr-4 hidden md:flex">
 					<Link href="/" className="mr-6 flex items-center space-x-2">
