@@ -1,21 +1,34 @@
 "use client";
-import { signOut } from "@/src/auth/auth-client";
+import { authClient, signOut } from "@/src/auth/auth-client";
 import { useRouter } from "next/navigation";
 import { Button } from "../ui/button";
 
 const SignOut = () => {
 	const router = useRouter();
+	const session = authClient.useSession();
+
+	if (!session.data) {
+		return (
+			<Button
+				onClick={() => {
+					router.push("/sign-in");
+				}}
+			>
+				Sign In
+			</Button>
+		);
+	}
+
 	return (
 		<Button
-			variant={"outline"}
 			onClick={async () => {
-				try {
-					await signOut();
-					router.push("/");
-					router.refresh();
-				} catch (error) {
-					console.error("Error during sign out:", error);
-				}
+				await signOut({
+					fetchOptions: {
+						onSuccess: () => {
+							router.push("/sign-in");
+						},
+					},
+				});
 			}}
 		>
 			Sign Out

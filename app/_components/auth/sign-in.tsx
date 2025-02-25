@@ -1,4 +1,5 @@
 "use client";
+
 import { signIn } from "@/src/auth/auth-client";
 import SignInSchema from "@/src/helpers/zod/sign-in-schema";
 import { useAuthState } from "@/src/hooks/useAuthState";
@@ -11,6 +12,8 @@ import FormError from "../forms/form-error";
 import FormSuccess from "../forms/form-success";
 import { Button } from "../ui/button";
 import CardWrapper from "../ui/card-wrapper";
+
+import { requestOTP } from "@/src/helpers/auth/request-otp";
 import {
 	Form,
 	FormControl,
@@ -56,15 +59,19 @@ const SignIn = () => {
 						resetState();
 						setLoading(true);
 					},
-					onSuccess: () => {
-						setSuccess("Logged in successfully");
-						router.replace("/");
-					},
-					onError: (ctx) => {
-						if (ctx.error.status === 403) {
-							setError("Please verify your email");
+					onSuccess: async (ctx) => {
+						if (ctx.data.twoFactorRedirect) {
+							const response = await requestOTP();
+							if (response?.data) {
+								setSuccess("OTP has been sent to your email");
+								router.push("/two-factor");
+							} else if (response?.error) {
+								setError(response.error.message);
+							}
+						} else {
+							setSuccess("Signed in successfully.");
+							router.replace("/");
 						}
-						setError(ctx.error.message);
 					},
 				},
 			);
@@ -91,7 +98,7 @@ const SignIn = () => {
 						setLoading(true);
 					},
 					onSuccess: () => {
-						setSuccess("Logged in successfully");
+						setSuccess("Signed in successfully");
 					},
 					onError: (ctx) => {
 						setError(ctx.error.message);
@@ -120,7 +127,7 @@ const SignIn = () => {
 						setLoading(true);
 					},
 					onSuccess: () => {
-						setSuccess("Logged in successfully");
+						setSuccess("Signed in successfully");
 						router.replace("/");
 					},
 					onError: (ctx) => {

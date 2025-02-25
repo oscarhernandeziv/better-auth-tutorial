@@ -3,6 +3,7 @@
 import { useSession } from "@/src/auth/auth-client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import Settings from "../auth/settings";
 import SignOut from "../auth/sign-out";
 import { ThemeToggle } from "../themes/theme-toggle";
 import { Button } from "../ui/button";
@@ -30,16 +31,19 @@ export function MainNav() {
 							Home
 						</Link>
 						{session && (
-							<Link
-								href="/dashboard"
-								className={`transition-colors hover:text-foreground/80 ${
-									pathname === "/dashboard"
-										? "text-foreground"
-										: "text-foreground/60"
-								}`}
-							>
-								Dashboard
-							</Link>
+							<>
+								<Link
+									href="/dashboard"
+									className={`transition-colors hover:text-foreground/80 ${
+										pathname === "/dashboard"
+											? "text-foreground"
+											: "text-foreground/60"
+									}`}
+								>
+									Dashboard
+								</Link>
+								<Settings />
+							</>
 						)}
 					</nav>
 				</div>

@@ -13,12 +13,13 @@ This is a demo todo list application showcasing authentication with [Better Auth
 
 ## Better Auth Features
 
-- [x] Email/Password Login
+- [x] Neon Postgres DB with Prisma Integration
 - [x] Social Login (Google, GitHub)
+- [x] Email/Password Login
 - [x] Session Management
 - [x] Next.js Middleware
-- [x] Neon Database with Prisma Integration
 - [x] Email Verification
 - [x] Forgot/Reset Password
+- [x] Two-Factor Authentication
 - [ ] Magic Link Login
 - [ ] Email OTP Login

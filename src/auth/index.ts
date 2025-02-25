@@ -1,11 +1,13 @@
 import prisma from "@/src/db";
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
+import { twoFactor } from "better-auth/plugins/two-factor";
 import { resend } from "../helpers/emails/resend";
 
 export const auth = betterAuth({
 	appName: "better_auth_tutorial",
 	database: prismaAdapter(prisma, { provider: "postgresql" }),
+
 	socialProviders: {
 		google: {
 			clientId: process.env.GOOGLE_CLIENT_ID!,
@@ -18,6 +20,7 @@ export const auth = betterAuth({
 			redirectURI: `${process.env.BETTER_AUTH_URL}/api/auth/callback/github`,
 		},
 	},
+
 	emailAndPassword: {
 		enabled: true,
 		autoSignIn: true,
@@ -45,4 +48,19 @@ export const auth = betterAuth({
 			});
 		},
 	},
+	plugins: [
+		twoFactor({
+			otpOptions: {
+				async sendOTP({ user, otp }) {
+					await resend.emails.send({
+						from: "Acme <onboarding@resend.dev>",
+						to: user.email,
+						subject: "Two Factor Authentication",
+						html: `Your OTP Code is ${otp}`,
+					});
+				},
+			},
+			skipVerificationOnEnable: true,
+		}),
+	],
 });
