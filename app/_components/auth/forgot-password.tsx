@@ -72,7 +72,7 @@ export default function ForgotPassword() {
 	return (
 		<CardWrapper
 			cardTitle="Forgot Password"
-			cardDescription="Enter your email to send link to reset password"
+			cardDescription="Enter your email to receive a link toreset your password."
 			cardFooterDescription="Remember your password?"
 			cardFooterLink="/sign-in"
 			cardFooterLinkTitle="Sign in"

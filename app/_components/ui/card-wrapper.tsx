@@ -29,7 +29,7 @@ const CardWrapper = ({
 	className = "",
 }: CardWrapperType) => {
 	return (
-		<Card className={`relative w-[400px] ${className}`}>
+		<Card className={`relative min-w-[400px] ${className}`}>
 			<CardHeader>
 				<CardTitle>{cardTitle}</CardTitle>
 				<CardDescription>{cardDescription}</CardDescription>

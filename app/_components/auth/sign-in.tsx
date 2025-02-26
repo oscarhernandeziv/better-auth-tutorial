@@ -3,8 +3,8 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
-import { useForm } from "react-hook-form";
+import { useEffect, useState } from "react";
+import { type Control, useForm } from "react-hook-form";
 import type { z } from "zod";
 
 import FormError from "@/app/_components/forms/form-error";
@@ -29,16 +29,28 @@ import { Input } from "@/app/_components/ui/input";
 
 import GitHubIcon from "@/app/_components/icons/GitHubIcon";
 import GoogleIcon from "@/app/_components/icons/GoogleIcon";
+import {
+	requestEmailOTP,
+	signInWithEmailOTP,
+} from "@/src/helpers/auth/request-email-otp";
 import { requestOTP } from "@/src/helpers/auth/request-otp";
 // Import the schemas (adjusted to match likely export)
-import SignInSchema from "@/src/helpers/zod/sign-in-schema";
-import { Mail, WandSparkles } from "lucide-react";
+import {
+	EmailOTPRequestSchema,
+	EmailOTPSignInSchema,
+	MagicLinkSignInSchema,
+	TraditionalSignInSchema,
+} from "@/src/helpers/zod/sign-in-schema";
+import { KeyRound, Mail, WandSparkles } from "lucide-react";
 
 export default function SignIn() {
 	// State to manage the current sign-in method (traditional vs magic link)
-	const [signInMethod, setSignInMethod] = useState<"traditional" | "magicLink">(
-		"traditional",
-	);
+	const [signInMethod, setSignInMethod] = useState<
+		"traditional" | "magicLink" | "emailOTP"
+	>("traditional");
+
+	// State to track if OTP has been requested
+	const [otpRequested, setOtpRequested] = useState(false);
 
 	// Router instance for navigation
 	const router = useRouter();
@@ -54,15 +66,21 @@ export default function SignIn() {
 		resetState,
 	} = useAuthState();
 
-	// Extract schema options for traditional and magic link sign-in methods
-	const TraditionalSignInSchema = SignInSchema.options[0];
-	const MagicLinkSignInSchema = SignInSchema.options[1];
-
 	// Dynamically determine the current schema based on the selected sign-in method
-	const currentSchema =
-		signInMethod === "traditional"
-			? TraditionalSignInSchema
-			: MagicLinkSignInSchema;
+	const getCurrentSchema = () => {
+		if (signInMethod === "traditional") {
+			return TraditionalSignInSchema;
+		}
+		if (signInMethod === "magicLink") {
+			return MagicLinkSignInSchema;
+		}
+		if (signInMethod === "emailOTP") {
+			return otpRequested ? EmailOTPSignInSchema : EmailOTPRequestSchema;
+		}
+		return TraditionalSignInSchema;
+	};
+
+	const currentSchema = getCurrentSchema();
 
 	// Initialize form handling with the appropriate schema and default values
 	const form = useForm<z.infer<typeof currentSchema>>({
@@ -70,8 +88,52 @@ export default function SignIn() {
 		defaultValues: {
 			email: "",
 			...(signInMethod === "traditional" ? { password: "" } : {}),
+			...(signInMethod === "emailOTP" && otpRequested ? { otp: "" } : {}),
 		},
 	});
+
+	// Update form schema when OTP requested state changes
+	useEffect(() => {
+		if (signInMethod === "emailOTP") {
+			const currentEmail = form.getValues().email;
+			if (otpRequested) {
+				form.reset({
+					email: currentEmail,
+					otp: "",
+				} as z.infer<typeof EmailOTPSignInSchema>);
+			} else {
+				form.reset({
+					email: currentEmail,
+				} as z.infer<typeof EmailOTPRequestSchema>);
+			}
+		}
+	}, [otpRequested, signInMethod, form]);
+
+	// Handle sign-in method change
+	const handleSignInMethodChange = (
+		method: "traditional" | "magicLink" | "emailOTP",
+	) => {
+		const currentEmail = form.getValues().email;
+
+		// Reset form with appropriate fields based on new sign-in method
+		if (method === "traditional") {
+			// Use type assertion with a specific type
+			form.reset({
+				email: currentEmail,
+				password: "",
+			} as z.infer<typeof TraditionalSignInSchema>);
+		} else {
+			form.reset({ email: currentEmail });
+		}
+
+		// Reset OTP requested state when changing away from emailOTP
+		if (method !== "emailOTP") {
+			setOtpRequested(false);
+		}
+
+		resetState();
+		setSignInMethod(method);
+	};
 
 	// Form submission handler
 	const onSubmit = async (values: z.infer<typeof currentSchema>) => {
@@ -94,6 +156,36 @@ export default function SignIn() {
 						},
 					},
 				);
+			} else if (signInMethod === "emailOTP") {
+				// Handle email OTP sign-in
+				if (!otpRequested) {
+					// Request OTP
+					const response = await requestEmailOTP(values.email);
+					if (response?.data) {
+						setOtpRequested(true);
+						// Reset form with email and empty OTP field to avoid uncontrolled to controlled error
+						form.reset({
+							email: values.email,
+							otp: "",
+						} as z.infer<typeof EmailOTPSignInSchema>);
+						setSuccess("OTP has been sent to your email.");
+					} else if (response?.error) {
+						setError(response.error.message);
+					}
+				} else {
+					// Verify OTP and sign in
+					const otpValues = values as z.infer<typeof EmailOTPSignInSchema>;
+					const response = await signInWithEmailOTP(
+						otpValues.email,
+						otpValues.otp,
+					);
+					if (response?.data) {
+						setSuccess("Logged in successfully.");
+						router.replace("/");
+					} else if (response?.error) {
+						setError(response.error.message);
+					}
+				}
 			} else {
 				// Handle traditional sign-in
 				const signInValues = values as z.infer<typeof TraditionalSignInSchema>;
@@ -141,9 +233,15 @@ export default function SignIn() {
 	return (
 		<CardWrapper
 			cardTitle="Sign In"
-			cardDescription="Choose a sign-in method below."
+			cardDescription={
+				signInMethod === "traditional"
+					? "Sign in with your email and password."
+					: signInMethod === "magicLink"
+						? "Sign in with a secure link sent to your email."
+						: "Sign in with a one-time password (OTP) sent to your email."
+			}
 			cardFooterDescription="Don't have an account?"
-			cardFooterLink="/signup"
+			cardFooterLink="/sign-up"
 			cardFooterLinkTitle="Sign up"
 		>
 			<Form {...form}>
@@ -155,25 +253,34 @@ export default function SignIn() {
 								type="button"
 								variant={signInMethod === "traditional" ? "default" : "ghost"}
 								className="rounded-md px-4"
-								onClick={() => setSignInMethod("traditional")}
+								onClick={() => handleSignInMethodChange("traditional")}
 							>
 								<Mail className="h-4 w-4" />
-								Email / Password
+								Password
 							</Button>
 							<Button
 								type="button"
 								variant={signInMethod === "magicLink" ? "default" : "ghost"}
 								className="rounded-md px-4"
-								onClick={() => setSignInMethod("magicLink")}
+								onClick={() => handleSignInMethodChange("magicLink")}
 							>
 								<WandSparkles className="h-4 w-4" />
 								Magic Link
+							</Button>
+							<Button
+								type="button"
+								variant={signInMethod === "emailOTP" ? "default" : "ghost"}
+								className="rounded-md px-4"
+								onClick={() => handleSignInMethodChange("emailOTP")}
+							>
+								<KeyRound className="h-4 w-4" />
+								Email OTP
 							</Button>
 						</div>
 					</div>
 
 					{/* Form Fields Container with Auto Height */}
-					<div className="overflow-hidden transition-all duration-300">
+					<div className="transition-all duration-300">
 						{/* Email Field */}
 						<FormField
 							control={form.control}
@@ -183,7 +290,9 @@ export default function SignIn() {
 									<FormLabel>Email</FormLabel>
 									<FormControl>
 										<Input
-											disabled={loading}
+											disabled={
+												loading || (signInMethod === "emailOTP" && otpRequested)
+											}
 											type="text"
 											placeholder="email@example.com"
 											{...field}
@@ -203,8 +312,11 @@ export default function SignIn() {
 							}`}
 						>
 							<FormField
-								control={form.control}
-								// @ts-ignore
+								control={
+									form.control as unknown as Control<
+										z.infer<typeof TraditionalSignInSchema>
+									>
+								} // type assertion to tell TS that the control is valid for TraditionalSignInSchema
 								name="password"
 								render={({ field }) => (
 									<FormItem>
@@ -230,6 +342,67 @@ export default function SignIn() {
 								)}
 							/>
 						</div>
+
+						{/* OTP Field (only for email OTP sign-in when OTP has been requested) */}
+						<div
+							className={`transition-all duration-300 ${
+								signInMethod === "emailOTP" && otpRequested
+									? "mt-4 max-h-[120px] opacity-100"
+									: "max-h-0 overflow-hidden opacity-0"
+							}`}
+						>
+							<FormField
+								control={
+									form.control as unknown as Control<
+										z.infer<typeof EmailOTPSignInSchema>
+									>
+								} // type assertion to tell TS that the control is valid for EmailOTPSignInSchema
+								name="otp"
+								render={({ field }) => (
+									<FormItem>
+										<FormLabel>One-Time Password</FormLabel>
+										<FormControl>
+											<Input
+												disabled={loading}
+												type="text"
+												placeholder="Enter OTP from your email"
+												{...field}
+											/>
+										</FormControl>
+										<FormMessage />
+										<div className="flex justify-end">
+											<Button
+												type="button"
+												variant="link"
+												className="h-auto p-0 text-primary text-xs"
+												onClick={async () => {
+													const email = form.getValues().email;
+													if (email) {
+														setLoading(true);
+														const response = await requestEmailOTP(email);
+														setLoading(false);
+														if (response?.data) {
+															// Reset form with current email and empty OTP field
+															form.reset({
+																email: email,
+																otp: "",
+															} as z.infer<typeof EmailOTPSignInSchema>);
+															setSuccess("OTP has been resent to your email.");
+														} else if (response?.error) {
+															setError(response.error.message);
+														}
+													} else {
+														setError("Please enter your email address.");
+													}
+												}}
+											>
+												Resend OTP
+											</Button>
+										</div>
+									</FormItem>
+								)}
+							/>
+						</div>
 					</div>
 
 					{/* Error & Success Messages */}
@@ -240,7 +413,11 @@ export default function SignIn() {
 					<Button disabled={loading} type="submit" className="w-full">
 						{signInMethod === "magicLink"
 							? "Send Magic Link"
-							: "Sign In with Password"}
+							: signInMethod === "emailOTP" && !otpRequested
+								? "Send OTP"
+								: signInMethod === "emailOTP" && otpRequested
+									? "Verify OTP & Sign In"
+									: "Sign In with Password"}
 					</Button>
 
 					{/* Guest Login Option */}

@@ -18,6 +18,35 @@ const MagicLinkSignInSchema = z.object({
 		.min(1, { message: "Email is required" }),
 });
 
-const SignInSchema = z.union([TraditionalSignInSchema, MagicLinkSignInSchema]);
+const EmailOTPSignInSchema = z.object({
+	email: z
+		.string()
+		.email({ message: "Invalid email" })
+		.min(1, { message: "Email is required" }),
+	otp: z
+		.string()
+		.min(1, { message: "OTP is required" })
+		.max(8, { message: "OTP must be less than 8 characters" }),
+});
+
+const EmailOTPRequestSchema = z.object({
+	email: z
+		.string()
+		.email({ message: "Invalid email" })
+		.min(1, { message: "Email is required" }),
+});
+
+const SignInSchema = z.union([
+	TraditionalSignInSchema,
+	MagicLinkSignInSchema,
+	EmailOTPSignInSchema,
+	EmailOTPRequestSchema,
+]);
 
 export default SignInSchema;
+export {
+	TraditionalSignInSchema,
+	MagicLinkSignInSchema,
+	EmailOTPSignInSchema,
+	EmailOTPRequestSchema,
+};

@@ -2,6 +2,7 @@ import prisma from "@/src/db";
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { anonymous } from "better-auth/plugins/anonymous";
+import { emailOTP } from "better-auth/plugins/email-otp";
 import { magicLink } from "better-auth/plugins/magic-link";
 import { twoFactor } from "better-auth/plugins/two-factor";
 import { resend } from "../helpers/emails/resend";
@@ -76,6 +77,32 @@ export const auth = betterAuth({
 					subject: "Magic Link",
 					html: `Click the link to sign in into your account: ${url}`,
 				});
+			},
+		}),
+		emailOTP({
+			async sendVerificationOTP({ email, otp, type }) {
+				if (type === "sign-in") {
+					await resend.emails.send({
+						from: "Acme <onboarding@resend.dev>",
+						to: email,
+						subject: "Sign In OTP",
+						html: `Your OTP Code is ${otp}`,
+					});
+				} else if (type === "email-verification") {
+					await resend.emails.send({
+						from: "Acme <onboarding@resend.dev>",
+						to: email,
+						subject: "Email Verification OTP",
+						html: `Your OTP Code is ${otp}`,
+					});
+				} else {
+					await resend.emails.send({
+						from: "Acme <onboarding@resend.dev>",
+						to: email,
+						subject: "Password Reset OTP",
+						html: `Your OTP Code is ${otp}`,
+					});
+				}
 			},
 		}),
 	],
