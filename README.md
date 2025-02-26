@@ -24,3 +24,7 @@ This is a demo todo list application showcasing authentication with [Better Auth
 - [x] Anonymous Login
 - [x] Magic Link Login
 - [x] Email OTP Login
+
+## Sign In Box
+
+[Sign In Box Screenshot](./public/images/Sign%20In%20Box.jpg)
