@@ -90,12 +90,23 @@ export default function SignIn() {
 			...(signInMethod === "traditional" ? { password: "" } : {}),
 			...(signInMethod === "emailOTP" && otpRequested ? { otp: "" } : {}),
 		},
+		mode: "onChange",
 	});
 
-	// Update form schema when OTP requested state changes
+	// Update form schema when OTP requested state changes or sign-in method changes
 	useEffect(() => {
-		if (signInMethod === "emailOTP") {
-			const currentEmail = form.getValues().email;
+		const currentEmail = form.getValues().email || "";
+		
+		if (signInMethod === "traditional") {
+			form.reset({
+				email: currentEmail,
+				password: "",
+			} as z.infer<typeof TraditionalSignInSchema>);
+		} else if (signInMethod === "magicLink") {
+			form.reset({
+				email: currentEmail,
+			} as z.infer<typeof MagicLinkSignInSchema>);
+		} else if (signInMethod === "emailOTP") {
 			if (otpRequested) {
 				form.reset({
 					email: currentEmail,
@@ -162,13 +173,19 @@ export default function SignIn() {
 					// Request OTP
 					const response = await requestEmailOTP(values.email);
 					if (response?.data) {
-						setOtpRequested(true);
-						// Reset form with email and empty OTP field to avoid uncontrolled to controlled error
+						// Important: First prepare the form
+						const emailValue = values.email;
+						// Reset form with email and empty OTP field
 						form.reset({
-							email: values.email,
+							email: emailValue,
 							otp: "",
 						} as z.infer<typeof EmailOTPSignInSchema>);
+						
+						// Then set success message
 						setSuccess("OTP has been sent to your email.");
+						
+						// Finally change the state after form is prepared
+						setOtpRequested(true);
 					} else if (response?.error) {
 						setError(response.error.message);
 					}
